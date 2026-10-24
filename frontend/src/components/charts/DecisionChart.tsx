@@ -130,7 +130,7 @@ export function DecisionChart({
               if (!active || !row) return null;
               const items: TooltipRow[] = [];
               const outturn = row.known ?? (reveal ? row.later : null);
-              if (outturn !== null) items.push({ label: "Outturn", value: fmtGW(outturn), color: C.actual });
+              if (outturn !== null) items.push({ label: "Actual", value: fmtGW(outturn), color: C.actual });
               if (row.forecast !== null) items.push({ label: "Forecast (raw)", value: fmtGW(row.forecast), color: C.forecast });
               if (showCalibrated && row.calibrated !== null)
                 items.push({ label: "Calibrated", value: fmtGW(row.calibrated), color: C.calibrated });

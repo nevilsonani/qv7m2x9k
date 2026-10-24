@@ -21,7 +21,7 @@ import {
 import type { Accuracy, DailyAccuracy, HistogramBin, HourProfile, LeadTimeCurve, LevelProfile } from "../../api/types";
 import { axisProps, gridProps, niceMaxMw, toMs } from "../../lib/chart";
 import { C, divergingFill } from "../../lib/colors";
-import { dayOfMonth, fmtDate, fmtDayTime, fmtGW, fmtGWh, fmtHours, fmtSignedGW, fmtSignedPct, tickGW } from "../../lib/format";
+import { dayOfMonth, fmtDate, fmtDayMonth, fmtDayTime, fmtGW, fmtGWh, fmtHours, fmtSignedGW, fmtSignedPct, tickGW } from "../../lib/format";
 import { TooltipCard } from "./TooltipCard";
 
 const tickSignedGW = (mw: number) => (mw === 0 ? "0" : `${mw > 0 ? "+" : "−"}${Math.abs(mw / 1000).toFixed(0)}`);
@@ -54,7 +54,7 @@ export function AccuracySeriesChart({ data }: { data: Accuracy }) {
             type="number"
             scale="time"
             domain={["dataMin", "dataMax"]}
-            tickFormatter={(ms: number) => fmtDate(new Date(ms).toISOString().slice(0, 10))}
+            tickFormatter={(ms: number) => fmtDayMonth(ms)}
             minTickGap={40}
             {...axisProps}
           />
@@ -89,7 +89,7 @@ export function AccuracySeriesChart({ data }: { data: Accuracy }) {
             stroke={C.axis}
             fill={C.surface}
             travellerWidth={8}
-            tickFormatter={(ms: number) => fmtDate(new Date(ms).toISOString().slice(0, 10))}
+            tickFormatter={(ms: number) => fmtDayMonth(ms)}
           />
         </ComposedChart>
       </ResponsiveContainer>

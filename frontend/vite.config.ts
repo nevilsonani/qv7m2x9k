@@ -13,7 +13,17 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 700,
+    rolldownOptions: {
+      output: {
+        // Vendor code changes far less often than app code: separate chunks cache better.
+        codeSplitting: {
+          groups: [
+            { name: "charts", test: /node_modules[\\/](recharts|d3-|victory-vendor|es-toolkit|@reduxjs|react-redux|redux|immer|reselect)/, priority: 2 },
+            { name: "react", test: /node_modules[\\/](react|react-dom|react-router|scheduler|@tanstack)[\\/]/, priority: 1 },
+          ],
+        },
+      },
+    },
   },
   test: {
     environment: "jsdom",

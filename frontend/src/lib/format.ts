@@ -6,6 +6,7 @@ const fmt = (options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en
 const timeFmt = fmt({ hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 const dayTimeFmt = fmt({ weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 const weekdayFmt = fmt({ weekday: "short" });
+const dayMonthFmt = fmt({ day: "numeric", month: "short" });
 const hourFmt = fmt({ hour: "2-digit", hourCycle: "h23" });
 // Calendar dates (YYYY-MM-DD) carry no time zone: format them as-is.
 const dateFmt = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" });
@@ -21,6 +22,9 @@ export const fmtDayTime = (value: string | number | Date) => dayTimeFmt.format(t
 
 /** "Thu" for a timestamp, in UK time. */
 export const fmtWeekday = (value: string | number | Date) => weekdayFmt.format(toDate(value));
+
+/** "15 Jan" for a timestamp, in UK time. */
+export const fmtDayMonth = (value: string | number | Date) => dayMonthFmt.format(toDate(value));
 
 /** Hour of day in UK time, 0-23. */
 export const ukHour = (value: string | number | Date) => Number(hourFmt.format(toDate(value)));

@@ -4,7 +4,7 @@ A web app for a UK utility's day-ahead power-buying desk. It shows **which wind 
 day-ahead auction closed** and **how accurate that forecast turned out to be**, for every purchase decision made in
 January 2026. Data: Elexon BMRS `WINDFOR` (national wind forecast) and `FUELHH` (wind outturn) only.
 
-- **Live app:** `<add your Vercel or Heroku URL here>`
+- **Live app:** https://qv7m2x9k.vercel.app
 - **Demo video:** `<add your unlisted YouTube link here>`
 
 ![Decision desk: replaying the 27 January auction](docs/images/decision-desk.png)

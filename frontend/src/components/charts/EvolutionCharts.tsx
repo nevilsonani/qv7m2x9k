@@ -12,7 +12,7 @@ import {
 } from "recharts";
 
 import type { DecisionView, Vintage } from "../../api/types";
-import { axisProps, gridProps, niceMaxMw, timeTickLabel, timeTicks, toMs } from "../../lib/chart";
+import { axisProps, gridProps, gwScale, timeTickLabel, timeTicks, toMs } from "../../lib/chart";
 import { C } from "../../lib/colors";
 import { fmtDayTime, fmtGW, fmtGWh, fmtTime, tickGW } from "../../lib/format";
 import { TooltipCard } from "./TooltipCard";
@@ -44,9 +44,9 @@ export function VintageChart({ view, reveal }: { view: DecisionView; reveal: boo
     return { rows: [...byX.values()].sort((a, b) => (a.x as number) - (b.x as number)), keys };
   }, [view.vintages, view.series, start, end]);
 
-  const yMax = useMemo(
+  const y = useMemo(
     () =>
-      niceMaxMw(
+      gwScale(
         Math.max(...view.vintages.flatMap((v) => v.points.map((p) => p.mw)), ...view.series.map((p) => p.actual ?? 0)),
       ),
     [view.vintages, view.series],
@@ -68,7 +68,7 @@ export function VintageChart({ view, reveal }: { view: DecisionView; reveal: boo
             tickFormatter={timeTickLabel}
             {...axisProps}
           />
-          <YAxis domain={[0, yMax]} tickFormatter={tickGW} width={44} {...axisProps} />
+          <YAxis domain={[0, y.max]} ticks={y.ticks} tickFormatter={tickGW} width={44} {...axisProps} />
           {keys
             .filter((k) => k.vintage.phase !== "decision")
             .map(({ key, vintage }) => (
@@ -121,13 +121,16 @@ export function RunEnergyChart({ view, reveal }: { view: DecisionView; reveal: b
         .map((v) => ({ x: toMs(v.publish_time), gwh: v.energy_gwh as number, phase: v.phase })),
     [view.vintages],
   );
+  if (rows.length === 0) return <p className="text-[13px] text-ink-3">No run covers the full delivery day.</p>;
+
   const gate = toMs(view.gate_closure);
   const actual = view.energy.actual_gwh;
   const values = [...rows.map((r) => r.gwh), ...(reveal && actual !== null ? [actual] : [])];
-  const lo = Math.floor((Math.min(...values) * 0.9) / 10) * 10;
-  const hi = Math.ceil((Math.max(...values) * 1.05) / 10) * 10;
-
-  if (rows.length === 0) return <p className="text-[13px] text-ink-3">No run covers the full delivery day.</p>;
+  const span = Math.max(...values) - Math.min(...values);
+  const step = span > 120 ? 50 : span > 50 ? 25 : 10;
+  const lo = Math.max(0, Math.floor((Math.min(...values) - step / 2) / step) * step);
+  const hi = Math.ceil((Math.max(...values) + step / 2) / step) * step;
+  const yTicks = Array.from({ length: (hi - lo) / step + 1 }, (_, i) => lo + i * step);
 
   return (
     <div role="img" aria-label="Forecast daily wind energy by forecast run">
@@ -140,9 +143,10 @@ export function RunEnergyChart({ view, reveal }: { view: DecisionView; reveal: b
             scale="time"
             domain={[rows[0].x - 3_600_000, rows[rows.length - 1].x + 3_600_000]}
             tickFormatter={(ms: number) => fmtTime(ms)}
+            minTickGap={24}
             {...axisProps}
           />
-          <YAxis domain={[lo, hi]} width={44} {...axisProps} />
+          <YAxis domain={[lo, hi]} ticks={yTicks} width={44} {...axisProps} />
           <ReferenceLine x={gate} stroke={C.ink2} label={{ value: "Gate", position: "insideTopLeft", fill: C.ink2, fontSize: 11 }} />
           {reveal && actual !== null && (
             <ReferenceLine

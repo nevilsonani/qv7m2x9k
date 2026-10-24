@@ -30,7 +30,9 @@ export function timeTickLabel(ms: number): string {
   return ukHour(ms) === 0 ? fmtWeekday(ms) : fmtTime(ms);
 }
 
-/** Round a MW maximum up to a clean GW gridline. */
-export function niceMaxMw(maxMw: number, stepMw = 2_500): number {
-  return Math.max(stepMw, Math.ceil(maxMw / stepMw) * stepMw);
+/** A 0-based MW axis with gridlines on round GW values (1, 2 or 5 GW apart). */
+export function gwScale(maxMw: number): { max: number; ticks: number[] } {
+  const step = maxMw > 12_000 ? 5_000 : maxMw > 5_000 ? 2_000 : 1_000;
+  const max = Math.max(step, Math.ceil(maxMw / step) * step);
+  return { max, ticks: Array.from({ length: max / step + 1 }, (_, i) => i * step) };
 }

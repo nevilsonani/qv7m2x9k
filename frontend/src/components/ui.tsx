@@ -153,13 +153,16 @@ export function Switch({
       className="inline-flex items-center gap-2 rounded-lg border border-line bg-surface-2 py-1.5 pr-3 pl-1.5 text-[13px] font-medium text-ink-2 hover:text-ink"
     >
       <span
-        className={cx("relative h-4 w-7 rounded-full transition-colors", checked ? "bg-forecast" : "bg-line-strong")}
+        className={cx(
+          "relative inline-block h-4 w-7 shrink-0 rounded-full transition-colors",
+          checked ? "bg-forecast" : "bg-line-strong",
+        )}
         style={checked && swatch ? { background: swatch } : undefined}
         aria-hidden
       >
         <span
           className={cx(
-            "absolute top-0.5 h-3 w-3 rounded-full bg-white shadow transition-transform",
+            "absolute top-0.5 left-0 h-3 w-3 rounded-full bg-white shadow transition-transform",
             checked ? "translate-x-3.5" : "translate-x-0.5",
           )}
         />

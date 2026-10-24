@@ -3,7 +3,8 @@ export const C = {
   forecast: "var(--c-forecast)",
   actual: "var(--c-actual)",
   calibrated: "var(--c-calibrated)",
-  later: "var(--c-later)",
+  // Later runs are a brighter neutral, not a hue: blue-vs-violet fails the CVD check.
+  later: "var(--ink-2)",
   over: "var(--c-over)",
   under: "var(--c-under)",
   mid: "var(--c-mid)",

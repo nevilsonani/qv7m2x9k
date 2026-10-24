@@ -13,7 +13,7 @@ import {
 } from "recharts";
 
 import type { DecisionView } from "../../api/types";
-import { axisProps, gridProps, niceMaxMw, timeTickLabel, timeTicks, toMs } from "../../lib/chart";
+import { axisProps, gridProps, gwScale, timeTickLabel, timeTicks, toMs } from "../../lib/chart";
 import { C } from "../../lib/colors";
 import { fmtDayTime, fmtGW, fmtTime, tickGW } from "../../lib/format";
 import { TooltipCard, type TooltipRow } from "./TooltipCard";
@@ -56,9 +56,9 @@ export function DecisionChart({
     return out;
   }, [view.series]);
 
-  const yMax = useMemo(() => {
+  const y = useMemo(() => {
     const values = view.series.flatMap((p) => [p.actual, p.forecast, showCalibrated ? p.high : null]);
-    return niceMaxMw(Math.max(...values.filter((v): v is number => v !== null)));
+    return gwScale(Math.max(...values.filter((v): v is number => v !== null)));
   }, [view.series, showCalibrated]);
 
   const ticks = useMemo(() => timeTicks(start, end, 6), [start, end]);
@@ -66,9 +66,10 @@ export function DecisionChart({
   return (
     <div
       role="img"
+      className="h-full"
       aria-label={`Wind generation forecast for delivery ${view.delivery_date}, as known at gate closure ${fmtTime(gate)}`}
     >
-      <ResponsiveContainer width="100%" height={360}>
+      <ResponsiveContainer width="100%" height="100%" minHeight={380}>
         <ComposedChart data={rows} margin={{ top: 28, right: 12, bottom: 0, left: -8 }}>
           <CartesianGrid {...gridProps} />
           <ReferenceArea
@@ -87,7 +88,7 @@ export function DecisionChart({
             tickFormatter={timeTickLabel}
             {...axisProps}
           />
-          <YAxis domain={[0, yMax]} tickFormatter={tickGW} width={44} tickCount={6} {...axisProps} />
+          <YAxis domain={[0, y.max]} ticks={y.ticks} tickFormatter={tickGW} width={44} {...axisProps} />
 
           {showCalibrated && (
             <Area

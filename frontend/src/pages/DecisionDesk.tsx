@@ -70,7 +70,7 @@ export default function DecisionDesk() {
 
           <div className="grid gap-4 xl:grid-cols-3">
             <Card
-              className="xl:col-span-2"
+              className="flex flex-col xl:col-span-2"
               title="Wind generation, GW"
               subtitle={`Auction day ${fmtDate(view.decision_date)} and delivery day ${fmtDate(view.delivery_date)} · UK time`}
               actions={
@@ -88,7 +88,9 @@ export default function DecisionDesk() {
                 />
               }
             >
-              <DecisionChart view={view} showCalibrated={calibrated} reveal={reveal} />
+              <div className="min-h-[380px] flex-1">
+                <DecisionChart view={view} showCalibrated={calibrated} reveal={reveal} />
+              </div>
               <p className="mt-3 text-[12px] text-ink-3">
                 Left of the gate line is what had already happened when you bid; the shaded block is the day you were
                 buying for.
@@ -275,18 +277,15 @@ function DecisionSummary({
             <div className="col-span-2">
               <Stat label="Wind delivered" value={fmtGWh(energy.actual_gwh)} swatch={C.actual} />
             </div>
-            <Stat
-              label="Raw forecast error"
-              value={fmtSignedPct(rawError)}
-              tone={Math.abs(rawError ?? 0) > Math.abs(calError ?? 0) ? "risk" : "default"}
-              sub={`MAE ${fmtGW(stats.raw?.mae)}`}
-            />
-            <Stat
-              label="Calibrated error"
-              value={fmtSignedPct(calError)}
-              tone={Math.abs(calError ?? 0) < Math.abs(rawError ?? 0) ? "good" : "default"}
-              sub={`MAE ${fmtGW(stats.calibrated?.mae)}`}
-            />
+            <Stat label="Raw forecast error" value={fmtSignedPct(rawError)} sub={`Hourly MAE ${fmtGW(stats.raw?.mae)}`} />
+            <Stat label="Calibrated error" value={fmtSignedPct(calError)} sub={`Hourly MAE ${fmtGW(stats.calibrated?.mae)}`} />
+            {rawError !== null && calError !== null && (
+              <p className="col-span-2 text-[13px] text-ink-2">
+                {Math.abs(calError) < Math.abs(rawError)
+                  ? `Calibration closed ${(Math.abs(rawError) - Math.abs(calError)).toFixed(1)} points of the daily energy gap.`
+                  : `The raw forecast was closer today, by ${(Math.abs(calError) - Math.abs(rawError)).toFixed(1)} points.`}
+              </p>
+            )}
             <p className="col-span-2 text-[12px] text-ink-3">
               Positive = forecast above actual: the shortfall had to be bought after the auction.
             </p>

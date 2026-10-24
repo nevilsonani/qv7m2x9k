@@ -19,7 +19,7 @@ import {
 } from "recharts";
 
 import type { Accuracy, DailyAccuracy, HistogramBin, HourProfile, LeadTimeCurve, LevelProfile } from "../../api/types";
-import { axisProps, gridProps, niceMaxMw, toMs } from "../../lib/chart";
+import { axisProps, gridProps, gwScale, toMs } from "../../lib/chart";
 import { C, divergingFill } from "../../lib/colors";
 import { dayOfMonth, fmtDate, fmtDayMonth, fmtDayTime, fmtGW, fmtGWh, fmtHours, fmtSignedGW, fmtSignedPct, tickGW } from "../../lib/format";
 import { TooltipCard } from "./TooltipCard";
@@ -40,7 +40,7 @@ export function AccuracySeriesChart({ data }: { data: Accuracy }) {
       })),
     [data.series],
   );
-  const yMax = niceMaxMw(Math.max(...data.series.flatMap((p) => [p.forecast ?? 0, p.actual ?? 0, p.high ?? 0])));
+  const y = gwScale(Math.max(...data.series.flatMap((p) => [p.forecast ?? 0, p.actual ?? 0, p.high ?? 0])));
   const forecastLabel = calibrated ? "Calibrated forecast" : "Forecast";
   const forecastColor = calibrated ? C.calibrated : C.forecast;
 
@@ -58,7 +58,7 @@ export function AccuracySeriesChart({ data }: { data: Accuracy }) {
             minTickGap={40}
             {...axisProps}
           />
-          <YAxis domain={[0, yMax]} tickFormatter={tickGW} width={44} {...axisProps} />
+          <YAxis domain={[0, y.max]} ticks={y.ticks} tickFormatter={tickGW} width={44} {...axisProps} />
           {calibrated && (
             <Area dataKey="band" stroke="none" fill={C.calibrated} fillOpacity={0.16} isAnimationActive={false} activeDot={false} />
           )}
@@ -102,7 +102,7 @@ export function AccuracySeriesChart({ data }: { data: Accuracy }) {
 export function LeadTimeChart({ curve }: { curve: LeadTimeCurve }) {
   const rows = curve.points.filter((p) => p.mae !== null);
   const ref = curve.day_ahead;
-  const yMax = niceMaxMw(Math.max(...rows.map((p) => p.p90_abs ?? 0)), 1000);
+  const y = gwScale(Math.max(...rows.map((p) => p.p90_abs ?? 0)));
 
   return (
     <div role="img" aria-label="Forecast error by lead time">
@@ -125,7 +125,7 @@ export function LeadTimeChart({ curve }: { curve: LeadTimeCurve }) {
             tickFormatter={(h: number) => `${h}h`}
             {...axisProps}
           />
-          <YAxis domain={[0, yMax]} tickFormatter={tickGW} width={44} {...axisProps} />
+          <YAxis domain={[0, y.max]} ticks={y.ticks} tickFormatter={tickGW} width={44} {...axisProps} />
           <Line dataKey="p90_abs" stroke={C.ink3} strokeWidth={1.5} dot={false} isAnimationActive={false} />
           <Line dataKey="mae" stroke={C.forecast} strokeWidth={2} dot={false} isAnimationActive={false} />
           {ref.lead_mean_h !== null && ref.raw_mae !== null && (

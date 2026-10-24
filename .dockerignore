@@ -1,0 +1,30 @@
+# Keep the Docker build context small and free of local state/secrets.
+.git
+.github
+.vercel
+.vscode
+.idea
+.env
+.env.*
+!.env.example
+*.log
+
+# Python
+**/__pycache__
+**/*.py[cod]
+**/.venv
+**/.pytest_cache
+**/.ruff_cache
+**/.coverage
+**/htmlcov
+
+# Node
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+**/coverage
+
+# Not needed in the image
+docs
+api
+vercel.json

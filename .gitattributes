@@ -1,0 +1,14 @@
+# Normalise line endings so Windows and Linux (Docker/CI) checkouts agree.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary / generated
+*.gz binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
+package-lock.json -diff linguist-generated
+frontend/src/api/schema.d.ts linguist-generated
+frontend/src/api/openapi.json linguist-generated

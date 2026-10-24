@@ -1,0 +1,14 @@
+# Files Vercel does not need to upload (it installs dependencies itself).
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/.coverage
+**/htmlcov
+**/dist
+.env
+.env.*
+!.env.example
+backend/tests
+docs

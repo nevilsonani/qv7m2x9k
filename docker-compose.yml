@@ -1,0 +1,11 @@
+# docker compose up --build   →   http://localhost:8000
+services:
+  winddesk:
+    build: .
+    image: winddesk:latest
+    ports:
+      - "8000:8000"
+    environment:
+      # "snapshot" serves the committed January 2026 data; "live" re-fetches it from Elexon on start-up.
+      WINDDESK_DATA_MODE: ${WINDDESK_DATA_MODE:-snapshot}
+    restart: unless-stopped

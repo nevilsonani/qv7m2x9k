@@ -123,9 +123,13 @@ def test_invalid_accuracy_queries_are_422(client: TestClient, params: dict):
 
 
 def test_lead_time_curve_error_grows_with_horizon(client: TestClient):
-    curve = client.get("/api/lead-time-curve").json()
+    body = client.get("/api/lead-time-curve").json()
+    curve = body["points"]
     assert [p["horizon_h"] for p in curve] == list(range(49))
     assert curve[36]["mae"] > curve[0]["mae"]
+    day_ahead = body["day_ahead"]
+    assert day_ahead["lead_min_h"] < day_ahead["lead_mean_h"] < day_ahead["lead_max_h"]
+    assert day_ahead["calibrated_mae"] < day_ahead["raw_mae"]
 
 
 def test_insights_are_generated(client: TestClient):

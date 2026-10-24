@@ -394,15 +394,17 @@ class WindAnalytics:
         end = pd.Timestamp(delivery_window_utc(last)[1])
         return pd.date_range(start, end, freq="1h", inclusive="left", unit="ns")
 
-    def lead_time_curve(self, start: date | None = None, end: date | None = None) -> list[dict[str, Any]]:
+    def lead_time_curve(self, gate_id: str, start: date | None = None, end: date | None = None) -> dict[str, Any]:
+        """Accuracy of the raw forecast as a function of lead time, plus where the
+        day-ahead decision (raw and calibrated) sits on that curve."""
         first, last = self._days_window(start, end)
         expected = len(self._target_index(first, last))
-        out = []
+        points = []
         for h in HORIZONS_H:
             frame = self.horizon_frame(h)
             frame = frame[(frame["delivery_date"] >= first) & (frame["delivery_date"] <= last)]
             stats = error_stats(pair(frame["forecast_mw"], self.actual_mw))
-            out.append(
+            points.append(
                 {
                     "horizon_h": h,
                     "n": stats.n if stats else 0,
@@ -413,7 +415,22 @@ class WindAnalytics:
                     "p90_abs": _r(stats.p90_abs) if stats else None,
                 }
             )
-        return out
+
+        decision = self.decision_frame(gate_id)
+        decision = decision[(decision["delivery_date"] >= first) & (decision["delivery_date"] <= last)]
+        raw = error_stats(pair(decision["forecast_mw"], self.actual_mw))
+        adj = error_stats(pair(decision["calibrated_mw"], self.actual_mw))
+        return {
+            "points": points,
+            "day_ahead": {
+                "gate": gate_id,
+                "lead_min_h": _r(decision["lead_h"].min()),
+                "lead_max_h": _r(decision["lead_h"].max()),
+                "lead_mean_h": _r(decision["lead_h"].mean()),
+                "raw_mae": _r(raw.mae) if raw else None,
+                "calibrated_mae": _r(adj.mae) if adj else None,
+            },
+        }
 
     def export_decision_csv(self, decision_date: date, gate_id: str) -> str:
         view = self.decision_view(decision_date, gate_id)
@@ -450,7 +467,7 @@ class WindAnalytics:
         top = levels.iloc[-1]
         calendar = [row for row in self.calendar(gate_id) if row["forecast_error_pct"] is not None]
         worst = max(calendar, key=lambda row: abs(row["forecast_error_pct"]))
-        curve = {row["horizon_h"]: row for row in self.lead_time_curve()}
+        curve = {row["horizon_h"]: row for row in self.lead_time_curve(gate_id)["points"]}
         banded = frame.dropna(subset=["low_mw", "high_mw", "actual_mw"])
         coverage = banded["actual_mw"].between(banded["low_mw"], banded["high_mw"]).mean()
 
@@ -489,6 +506,11 @@ class WindAnalytics:
                     f"A trailing {self.window_days}-day calibration, using only data published before gate "
                     f"closure, reduces MAE from {raw.mae / 1000:.2f} to {adj.mae / 1000:.2f} GW and bias from "
                     f"{raw.bias / 1000:+.2f} to {adj.bias / 1000:+.2f} GW."
+                    + (
+                        f" That beats the raw forecast published just 1 hour ahead ({curve[1]['mae'] / 1000:.2f} GW)."
+                        if curve[1]["mae"] is not None and adj.mae < curve[1]["mae"]
+                        else ""
+                    )
                 ),
             },
             {

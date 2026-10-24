@@ -235,6 +235,20 @@ class LeadTimePoint(BaseModel):
     p90_abs: float | None
 
 
+class DayAheadReference(BaseModel):
+    gate: GateId
+    lead_min_h: float | None
+    lead_max_h: float | None
+    lead_mean_h: float | None
+    raw_mae: float | None
+    calibrated_mae: float | None
+
+
+class LeadTimeCurve(BaseModel):
+    points: list[LeadTimePoint]
+    day_ahead: DayAheadReference = Field(description="Where the day-ahead decision forecast sits on the curve")
+
+
 class Insight(BaseModel):
     id: str
     tone: Literal["risk", "opportunity", "info"]

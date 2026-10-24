@@ -14,7 +14,7 @@ from app.api.schemas import (
     GateId,
     Health,
     Insight,
-    LeadTimePoint,
+    LeadTimeCurve,
     Meta,
     Variant,
 )
@@ -69,9 +69,9 @@ def accuracy(
     return analytics.accuracy(basis, gate, horizon_h, variant, start, end)
 
 
-@router.get("/lead-time-curve", response_model=list[LeadTimePoint])
-def lead_time_curve(analytics: Analytics, start: Start = None, end: End = None) -> list[dict]:
-    return analytics.lead_time_curve(start, end)
+@router.get("/lead-time-curve", response_model=LeadTimeCurve)
+def lead_time_curve(analytics: Analytics, gate: Gate = DEFAULT_GATE, start: Start = None, end: End = None) -> dict:
+    return analytics.lead_time_curve(gate, start, end)
 
 
 @router.get("/insights", response_model=list[Insight])

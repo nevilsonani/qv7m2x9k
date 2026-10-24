@@ -133,7 +133,7 @@ on a cold start. A lifespan hook pre-warms it where lifespan is supported.
 | `test_snapshot_invariants.py` | Completeness of the snapshot and pinned headline numbers |
 | `frontend/**/*.test.ts(x)` | UK-time formatting (GMT/BST), colour scales, API client errors, calendar keyboard and hindsight guard |
 
-Backend coverage is about 95%.
+Backend coverage is 94%.
 
 ## Decisions and trade-offs
 

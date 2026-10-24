@@ -116,7 +116,6 @@ are up to date, and smoke-tests the Docker image.
 ├── docs/
 │   ├── ARCHITECTURE.md          Design, data flow, decisions and trade-offs (for reviewers)
 │   ├── ANALYSIS.md              Findings and methodology (for the client)
-│   ├── VIDEO_SCRIPT.md          Outline for the two-part demo video
 │   └── images/                  Screenshots
 └── .github/workflows/ci.yml     Lint, test, type-drift and Docker smoke test
 ```

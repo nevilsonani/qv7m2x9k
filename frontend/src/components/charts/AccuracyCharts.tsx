@@ -234,6 +234,9 @@ export function HourProfileChart({ rows }: { rows: HourProfile[] }) {
   const lo = Math.min(0, ...rows.map((r) => r.p10));
   const hi = Math.max(0, ...rows.map((r) => r.p90));
   const step = 1000;
+  const yLo = Math.floor(lo / step) * step;
+  const yHi = Math.ceil(hi / step) * step;
+  const yTicks = Array.from({ length: (yHi - yLo) / step + 1 }, (_, i) => yLo + i * step);
 
   return (
     <div role="img" aria-label="Forecast error by hour of day">
@@ -249,7 +252,8 @@ export function HourProfileChart({ rows }: { rows: HourProfile[] }) {
             {...axisProps}
           />
           <YAxis
-            domain={[Math.floor(lo / step) * step, Math.ceil(hi / step) * step]}
+            domain={[yLo, yHi]}
+            ticks={yTicks}
             tickFormatter={tickSignedGW}
             width={44}
             {...axisProps}
@@ -294,8 +298,8 @@ export function LevelChart({ rows }: { rows: LevelProfile[] }) {
         <BarChart data={data} margin={{ top: 24, right: 16, bottom: 4, left: -8 }} barCategoryGap="28%">
           <CartesianGrid {...gridProps} />
           <XAxis dataKey="label" {...axisProps} />
-          <YAxis domain={[0, 110]} ticks={[0, 25, 50, 75, 100]} tickFormatter={(v: number) => `${v}%`} width={44} {...axisProps} />
-          <ReferenceLine y={100} stroke={C.ink3} label={{ value: "Forecast", position: "insideTopLeft", fill: C.ink3, fontSize: 11 }} />
+          <YAxis domain={[0, 110]} ticks={[0, 25, 50, 75, 100]} tickFormatter={(v: number) => `${v}%`} width={52} {...axisProps} />
+          <ReferenceLine y={100} stroke={C.ink3} />
           <Bar dataKey="pct" fill={C.forecast} radius={[4, 4, 0, 0]} isAnimationActive={false}>
             <LabelList
               dataKey="pct"

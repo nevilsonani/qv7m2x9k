@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 
 import type { CalendarDay } from "../api/types";
 import { cx } from "../lib/cx";
@@ -24,6 +24,12 @@ export function DecisionCalendar({
   calibrated: boolean;
 }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const selectedIndex = days.findIndex((d) => d.decision_date === selected);
+
+  // On narrow screens the strip scrolls: keep the selected day in view.
+  useEffect(() => {
+    refs.current[selectedIndex]?.scrollIntoView({ block: "nearest", inline: "center" });
+  }, [selectedIndex]);
   const energies = days.map((d) => (calibrated ? d.calibrated_gwh : d.forecast_gwh));
   const minE = Math.min(...energies);
   const maxE = Math.max(...energies);
@@ -39,12 +45,13 @@ export function DecisionCalendar({
 
   return (
     <div>
-      <div
-        role="listbox"
-        aria-label="Auction day"
-        className="grid gap-1"
-        style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}
-      >
+      <div className="-mx-1 overflow-x-auto px-1 py-1">
+        <div
+          role="listbox"
+          aria-label="Auction day"
+          className="grid gap-1"
+          style={{ gridTemplateColumns: `repeat(${days.length}, minmax(34px, 1fr))` }}
+        >
         {days.map((day, i) => {
           const energy = calibrated ? day.calibrated_gwh : day.forecast_gwh;
           const error = calibrated ? day.calibrated_error_pct : day.forecast_error_pct;
@@ -80,6 +87,7 @@ export function DecisionCalendar({
             </button>
           );
         })}
+        </div>
       </div>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-ink-3">
         <span>Auction day, January 2026 · delivery is the following day · ← → to step</span>
